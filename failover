@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+export PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/root/bin"
+
+IF_CABLE=gif0
+IF_DTAG=pppoe0
+
+GW=$(netstat -nr4 | grep default | awk '{print $4}')
+
+echo "current gw: ${GW}"
+read -p "Failover? [y/n]: " failover_yn
+
+case $failover_yn in
+    [Yy]*)
+        if [ "${GW}" == "${IF_DTAG}" ]; then
+            route del default
+            route add default -interface ${IF_CABLE}
+        else
+            gw=$(ifconfig ${IF_DTAG} | grep 'inet ' | awk '{print $4}')
+            route del default
+            route add default ${gw} -interface ${IF_DTAG}
+        fi
+    ;;
+    *)
+        echo "Exiting without changing default ipv4 routes."
+    ;;
+esac
+
