@@ -18,7 +18,8 @@ case $failover_yn in
         else
             gw=$(ifconfig ${IF_DTAG} | grep 'inet ' | awk '{print $4}')
             route del default
-            route add default ${gw} -interface ${IF_DTAG}
+            # route add default ${gw}
+            route add default -interface ${IF_DTAG}
         fi
     ;;
     *)
